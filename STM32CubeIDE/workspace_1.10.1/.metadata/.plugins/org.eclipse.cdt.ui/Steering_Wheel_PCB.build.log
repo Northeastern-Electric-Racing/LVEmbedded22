@@ -1,10 +1,16 @@
-17:36:41 **** Incremental Build of configuration Debug for project Steering_Wheel_PCB ****
+13:09:26 **** Build of configuration Debug for project Steering_Wheel_PCB ****
 make -j8 all 
+arm-none-eabi-g++ -o "Steering_Wheel_PCB.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\wstad\OneDrive\Desktop\GITHUB\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\Steering_Wheel_PCB\STM32G431C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Steering_Wheel_PCB.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+Finished building target: Steering_Wheel_PCB.elf
+ 
 arm-none-eabi-size   Steering_Wheel_PCB.elf 
+arm-none-eabi-objdump -h -S  Steering_Wheel_PCB.elf  > "Steering_Wheel_PCB.list"
    text	   data	    bss	    dec	    hex	filename
-  19940	     20	   2068	  22028	   560c	Steering_Wheel_PCB.elf
+  19880	     20	   2068	  21968	   55d0	Steering_Wheel_PCB.elf
 Finished building: default.size.stdout
  
+Finished building: Steering_Wheel_PCB.list
+ 
 
-17:36:41 Build Finished. 0 errors, 0 warnings. (took 232ms)
+13:09:29 Build Finished. 0 errors, 0 warnings. (took 3s.352ms)
 

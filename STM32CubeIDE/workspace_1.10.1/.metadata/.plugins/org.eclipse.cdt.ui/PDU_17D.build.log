@@ -1,10 +1,17 @@
-01:20:21 **** Incremental Build of configuration Debug for project PDU_17D ****
+17:22:47 **** Build of configuration Debug for project PDU_17D ****
 make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32G431xx -c -I../Core/Inc -I../Drivers/STM32G4xx_HAL_Driver/Inc -I../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-g++ -o "PDU_17D.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\wstad\OneDrive\Desktop\GITHUB\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\PDU_17D\STM32G431C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="PDU_17D.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+Finished building target: PDU_17D.elf
+ 
 arm-none-eabi-size   PDU_17D.elf 
+arm-none-eabi-objdump -h -S  PDU_17D.elf  > "PDU_17D.list"
    text	   data	    bss	    dec	    hex	filename
-  16948	     20	   1948	  18916	   49e4	PDU_17D.elf
+  16996	     24	   1944	  18964	   4a14	PDU_17D.elf
 Finished building: default.size.stdout
  
+Finished building: PDU_17D.list
+ 
 
-01:20:21 Build Finished. 0 errors, 0 warnings. (took 219ms)
+17:22:51 Build Finished. 0 errors, 0 warnings. (took 4s.356ms)
 

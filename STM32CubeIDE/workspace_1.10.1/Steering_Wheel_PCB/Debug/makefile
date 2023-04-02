@@ -75,8 +75,8 @@ all: main-build
 main-build: Steering_Wheel_PCB.elf secondary-outputs
 
 # Tool invocations
-Steering_Wheel_PCB.elf Steering_Wheel_PCB.map: $(OBJS) $(USER_OBJS) C:\Users\wstad\STM32CubeIDE\workspace_1.10.1\Steering_Wheel_PCB\STM32G431C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "Steering_Wheel_PCB.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\wstad\STM32CubeIDE\workspace_1.10.1\Steering_Wheel_PCB\STM32G431C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Steering_Wheel_PCB.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+Steering_Wheel_PCB.elf Steering_Wheel_PCB.map: $(OBJS) $(USER_OBJS) C:\Users\wstad\OneDrive\Desktop\GITHUB\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\Steering_Wheel_PCB\STM32G431C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "Steering_Wheel_PCB.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\wstad\OneDrive\Desktop\GITHUB\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\Steering_Wheel_PCB\STM32G431C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Steering_Wheel_PCB.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
