@@ -13,3 +13,69 @@ Command-line arguments:  -os win32 -ws win32 -arch x86_64
 
 !ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-01-19 18:40:49.316
 !MESSAGE Started RMI Server, listening on port 41337
+<<<<<<< HEAD
+=======
+!SESSION 2023-02-23 14:01:46.589 -----------------------------------------------
+eclipse.buildId=Version 1.11.2
+java.version=11.0.16
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2023-02-23 14:02:17.047
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2023-02-23 14:02:17.116
+!MESSAGE Log4j initialized with config file C:\Users\range\OneDrive\Documents\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-02-23 14:02:19.429
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.cdt.core 1 0 2023-02-23 14:10:11.097
+!MESSAGE Indexed 'LVLoadSwitch' (19 sources, 81 headers) in 2.37 sec: 4,728 declarations; 19,130 references; 0 unresolved inclusions; 1 syntax errors; 2 unresolved names (0.0084%)
+!SESSION 2023-03-01 14:35:49.961 -----------------------------------------------
+eclipse.buildId=Version 1.11.2
+java.version=11.0.16
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2023-03-01 14:36:10.845
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2023-03-01 14:36:10.966
+!MESSAGE Log4j initialized with config file C:\Users\range\OneDrive\Documents\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-03-01 14:36:18.851
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2023-03-01 14:47:20.868 -----------------------------------------------
+eclipse.buildId=Version 1.11.2
+java.version=11.0.16
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2023-03-01 14:47:28.674
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2023-03-01 14:47:28.761
+!MESSAGE Log4j initialized with config file C:\Users\range\OneDrive\Documents\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-03-01 14:47:33.519
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2023-03-01 14:49:02.286 -----------------------------------------------
+eclipse.buildId=Version 1.11.2
+java.version=11.0.16
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2023-03-01 14:49:09.674
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2023-03-01 14:49:09.772
+!MESSAGE Log4j initialized with config file C:\Users\range\OneDrive\Documents\LVEmbedded22\STM32CubeIDE\workspace_1.10.1\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-03-01 14:49:14.728
+!MESSAGE Started RMI Server, listening on port 41337
+>>>>>>> parent of 1f3a0ae... lv load switch code
