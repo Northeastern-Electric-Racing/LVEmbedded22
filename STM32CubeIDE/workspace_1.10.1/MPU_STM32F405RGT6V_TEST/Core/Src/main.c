@@ -57,6 +57,23 @@ UART_HandleTypeDef huart4;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
+//Temp Sensor Measurements
+float temp_F = 0;
+float acc_x = 0;
+uint8_t eeprom_data = 0;
+static const uint8_t MEAS_CMD[2] = {0x2C,0x06}; //{0x2C,0x06};
+static const uint8_t SHT30_DIS_B10KS_ADDR = 0x44 << 1;
+
+//IMU Measurements
+static const uint8_t OUTX_L_A = 0x28;
+static const uint8_t OUTX_H_A = 0x29;
+static const uint16_t WHO_AM_I = 0x20;
+static const uint16_t LSM6DSOXTR_ADDR = 0x6A << 1; //1101010b
+
+//EEPROM
+static const uint8_t EEPROM_ADDR = 0x50 << 1;//1010000
+static const uint8_t RAND_ADDR = 0x10;
+
 
 /* USER CODE END PV */
 
@@ -79,6 +96,22 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// https://stackoverflow.com/questions/51752284/how-to-calculate-crc8-in-c
+uint8_t gencrc(uint8_t *data, size_t len)
+{
+    uint8_t crc = 0xff;
+    size_t i, j;
+    for (i = 0; i < len; i++) {
+        crc ^= data[i];
+        for (j = 0; j < 8; j++) {
+            if ((crc & 0x80) != 0)
+                crc = (uint8_t)((crc << 1) ^ 0x31);
+            else
+                crc <<= 1;
+        }
+    }
+    return crc;
+}
 
 /* USER CODE END 0 */
 
@@ -89,7 +122,12 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	//HAL_StatusTypeDef ret;
+	uint8_t raw_data[6];
+	uint8_t eeprom_raw;
+	uint8_t raw_IMU_data[2];
+	//int16_t val;
+	//float temp_c;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -121,13 +159,94 @@ int main(void)
   MX_UART4_Init();
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
-
+  int last_temp = 0;
+  int last_IMU = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	//Reading Temperature from SHT30-DIS-B10KS
+	HAL_I2C_Master_Transmit(&hi2c1, SHT30_DIS_B10KS_ADDR, MEAS_CMD, 2, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
+	HAL_I2C_Master_Receive(&hi2c1, SHT30_DIS_B10KS_ADDR, raw_data, 6, HAL_MAX_DELAY); //HAL_MAX_DELAY
+
+	float temp_data = ((int16_t)raw_data[0]<<8) | ((int16_t)raw_data[1]);
+
+
+	//float temp_C = -45 + 175*(temp_data/((2^16)-1));
+	temp_F = -49 + 315*(temp_data/65535);
+
+
+	/*if(last_temp > temp_data)
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_RESET);
+	}
+
+	if(last_temp < temp_data)
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_RESET);
+	}*/
+
+	HAL_Delay(500);
+	//Reading from accelerometer
+	//HAL_I2C_Master_Transmit(&hi2c1, LSM6DSOXTR_ADDR, WHO_AM_I, 1, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
+	//HAL_I2C_Master_Receive(&hi2c1, LSM6DSOXTR_ADDR, raw_IMU_data, 1, HAL_MAX_DELAY); //HAL_MAX_DELAY
+
+	HAL_I2C_Mem_Read(&hi2c1, LSM6DSOXTR_ADDR, WHO_AM_I, I2C_MEMADD_SIZE_8BIT, &raw_IMU_data[0], 1, HAL_MAX_DELAY);
+//I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+	//HAL_I2C_Master_Transmit(&hi2c1, LSM6DSOXTR_ADDR, OUTX_H_A, 1, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
+	//HAL_I2C_Master_Receive(&hi2c1, LSM6DSOXTR_ADDR, raw_IMU_data[0], 1, HAL_MAX_DELAY); //HAL_MAX_DELAY
+	HAL_Delay(500);
+
+	//float imu_data = (((int16_t)raw_IMU_data[0])<<8) | ((int16_t)raw_IMU_data[1]);
+	float imu_data = 0;
+	acc_x = raw_IMU_data[0];
+
+
+	if(last_IMU != imu_data)
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_RESET);
+	}
+
+	if(last_IMU != imu_data)
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_SET);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_RESET);
+	}
+
+	last_IMU = imu_data;
+	last_temp = temp_data;
+	//eeprom_raw
+	//HAL_I2C_Master_Transmit(&hi2c1, EEPROM_ADDR, RAND_ADDR, 1, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
+	//HAL_I2C_Master_Receive(&hi2c1, EEPROM_ADDR, eeprom_raw, 1, HAL_MAX_DELAY); //HAL_MAX_DELAY
+
+	eeprom_data = eeprom_raw;
+	//CRC Checking
+	/*if(temp_CRC == calc_CRC)
+	{
+		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_SET); // Turn on LED2 if something recieved
+	}*/
+
+	// LED Toggling
+	//HAL_GPIO_TogglePin(GPIOC, LED_1_Pin); // Toggle on LED1
+	HAL_Delay(50);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
