@@ -48,6 +48,8 @@ CAN_HandleTypeDef hcan1;
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim12;
@@ -90,6 +92,7 @@ static void MX_SPI1_Init(void);
 static void MX_TIM12_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
+static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -144,6 +147,10 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
 
+  /* allow for console printing - this sets up semihosting which can allow the IDE console
+   * to read from mcu console output. Configuration needed in project properties too*/
+  extern void initialise_monitor_handles(void);
+  initialise_monitor_handles();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -158,24 +165,39 @@ int main(void)
   MX_TIM12_Init();
   MX_UART4_Init();
   MX_USB_OTG_FS_PCD_Init();
+//  MX_IWDG_Init();
+//  HAL_IWDG_Init(&hiwdg);
   /* USER CODE BEGIN 2 */
   int last_temp = 0;
   int last_IMU = 0;
   /* USER CODE END 2 */
 
+  HAL_GPIO_TogglePin(GPIOC, LED_2_Pin); // Toggle on LED2
+  HAL_Delay(500);
+  HAL_GPIO_TogglePin(GPIOC, LED_2_Pin); // Toggle on LED2
+  HAL_Delay(500);
+  HAL_GPIO_TogglePin(GPIOC, LED_2_Pin); // Toggle on LED2
+  HAL_Delay(500);
+  HAL_GPIO_TogglePin(GPIOC, LED_2_Pin); // Toggle on LED2
+
+  HAL_GPIO_WritePin(GPIOC, WATCHDOG_Pin, GPIO_PIN_SET);
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	 // HAL_GPIO_WritePin(GPIOC, WATCHDOG_Pin, GPIO_PIN_RESET);
+//	  HAL_IWDG_Refresh(&hiwdg);
+	 // HAL_Delay(10000);
 	//Reading Temperature from SHT30-DIS-B10KS
-	HAL_I2C_Master_Transmit(&hi2c1, SHT30_DIS_B10KS_ADDR, MEAS_CMD, 2, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
-	HAL_I2C_Master_Receive(&hi2c1, SHT30_DIS_B10KS_ADDR, raw_data, 6, HAL_MAX_DELAY); //HAL_MAX_DELAY
+	//HAL_I2C_Master_Transmit(&hi2c1, SHT30_DIS_B10KS_ADDR, MEAS_CMD, 2, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
+	//HAL_I2C_Master_Receive(&hi2c1, SHT30_DIS_B10KS_ADDR, raw_data, 6, HAL_MAX_DELAY); //HAL_MAX_DELAY
 
-	float temp_data = ((int16_t)raw_data[0]<<8) | ((int16_t)raw_data[1]);
+	//float temp_data = ((int16_t)raw_data[0]<<8) | ((int16_t)raw_data[1]);
 
 
 	//float temp_C = -45 + 175*(temp_data/((2^16)-1));
-	temp_F = -49 + 315*(temp_data/65535);
+	//temp_F = -49 + 315*(temp_data/65535);
 
 
 	/*if(last_temp > temp_data)
@@ -196,47 +218,47 @@ int main(void)
 		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_RESET);
 	}*/
 
-	HAL_Delay(500);
+	//HAL_Delay(500);
 	//Reading from accelerometer
 	//HAL_I2C_Master_Transmit(&hi2c1, LSM6DSOXTR_ADDR, WHO_AM_I, 1, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
 	//HAL_I2C_Master_Receive(&hi2c1, LSM6DSOXTR_ADDR, raw_IMU_data, 1, HAL_MAX_DELAY); //HAL_MAX_DELAY
 
-	HAL_I2C_Mem_Read(&hi2c1, LSM6DSOXTR_ADDR, WHO_AM_I, I2C_MEMADD_SIZE_8BIT, &raw_IMU_data[0], 1, HAL_MAX_DELAY);
+	//HAL_I2C_Mem_Read(&hi2c1, LSM6DSOXTR_ADDR, WHO_AM_I, I2C_MEMADD_SIZE_8BIT, &raw_IMU_data[0], 1, HAL_MAX_DELAY);
 //I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout);
 	//HAL_I2C_Master_Transmit(&hi2c1, LSM6DSOXTR_ADDR, OUTX_H_A, 1, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
 	//HAL_I2C_Master_Receive(&hi2c1, LSM6DSOXTR_ADDR, raw_IMU_data[0], 1, HAL_MAX_DELAY); //HAL_MAX_DELAY
-	HAL_Delay(500);
+	//HAL_Delay(500);
 
 	//float imu_data = (((int16_t)raw_IMU_data[0])<<8) | ((int16_t)raw_IMU_data[1]);
-	float imu_data = 0;
-	acc_x = raw_IMU_data[0];
+	//float imu_data = 0;
+	//acc_x = raw_IMU_data[0];
 
 
-	if(last_IMU != imu_data)
-	{
-		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_SET);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_RESET);
-	}
-
-	if(last_IMU != imu_data)
-	{
-		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_SET);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_RESET);
-	}
-
-	last_IMU = imu_data;
-	last_temp = temp_data;
+//	if(last_IMU != imu_data)
+//	{
+//		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_SET);
+//	}
+//	else
+//	{
+//		HAL_GPIO_WritePin(GPIOC, LED_1_Pin, GPIO_PIN_RESET);
+//	}
+//
+//	if(last_IMU != imu_data)
+//	{
+//		//HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_SET);
+//	}
+//	else
+//	{
+//		//HAL_GPIO_WritePin(GPIOC, LED_2_Pin, GPIO_PIN_RESET);
+//	}
+//
+//	last_IMU = imu_data;
+//	last_temp = temp_data;
 	//eeprom_raw
 	//HAL_I2C_Master_Transmit(&hi2c1, EEPROM_ADDR, RAND_ADDR, 1, HAL_MAX_DELAY); //I2C handler, I2C address, register, # bytes to send (2), wait time (us?)
 	//HAL_I2C_Master_Receive(&hi2c1, EEPROM_ADDR, eeprom_raw, 1, HAL_MAX_DELAY); //HAL_MAX_DELAY
 
-	eeprom_data = eeprom_raw;
+	//eeprom_data = eeprom_raw;
 	//CRC Checking
 	/*if(temp_CRC == calc_CRC)
 	{
@@ -244,8 +266,22 @@ int main(void)
 	}*/
 
 	// LED Toggling
-	//HAL_GPIO_TogglePin(GPIOC, LED_1_Pin); // Toggle on LED1
-	HAL_Delay(50);
+	//HAL_GPIO_TogglePin(GPIOC, LED_2_Pin); // Toggle on LED1
+	//HAL_Delay(50);
+
+	/* CAN RECEIVING TEST */
+
+     CAN_RxHeaderTypeDef rx_header;
+	 uint8_t can_rec_data[5];
+	 if (HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO1, &rx_header, can_rec_data)) HAL_GPIO_TogglePin(GPIOC, LED_1_Pin);
+	 HAL_Delay(500);
+	 HAL_GPIO_TogglePin(GPIOC, LED_1_Pin);
+	// printf("HEllo");
+//	 uint8_t uartdata[5];
+//	 uartdata[0] = 2;
+//	 HAL_UART_Transmit(&huart4, uartdata, 1, HAL_MAX_DELAY);
+
+
 
     /* USER CODE END WHILE */
 
@@ -271,8 +307,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
@@ -557,6 +594,34 @@ static void MX_I2C2_Init(void)
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
+
+}
+
+/**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+  hiwdg.Init.Reload = 4095;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+
+  /* USER CODE END IWDG_Init 2 */
 
 }
 
