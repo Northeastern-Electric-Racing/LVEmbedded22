@@ -77,6 +77,7 @@ void Error_Handler(void);
 #define PB8_GPIO_Port GPIOB
 #define PB7_Pin GPIO_PIN_1
 #define PB7_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
