@@ -67,10 +67,6 @@ void Error_Handler(void);
 #define PB2_GPIO_Port GPIOA
 #define PB1_Pin GPIO_PIN_1
 #define PB1_GPIO_Port GPIOA
-#define POT2_Pin GPIO_PIN_5
-#define POT2_GPIO_Port GPIOA
-#define POT1_Pin GPIO_PIN_6
-#define POT1_GPIO_Port GPIOA
 #define PB9_Pin GPIO_PIN_7
 #define PB9_GPIO_Port GPIOA
 #define PB8_Pin GPIO_PIN_0

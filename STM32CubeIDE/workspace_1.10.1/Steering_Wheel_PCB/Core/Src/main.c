@@ -39,9 +39,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc2;
-DMA_HandleTypeDef hdma_adc2;
-
 FDCAN_HandleTypeDef hfdcan1;
 
 TIM_HandleTypeDef htim1;
@@ -57,10 +54,8 @@ uint8_t TxData[8];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_TIM4_Init(void);
-static void MX_ADC2_Init(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
@@ -94,29 +89,19 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_FDCAN1_Init();
   MX_TIM4_Init();
-  MX_ADC2_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   //Defining variables
-  #define ADC_BUF_LEN 2
-  uint16_t AdcResults[ADC_BUF_LEN];
-  uint8_t  digital_word = 0; //Digital Input Data
-  uint16_t analog1_word = 0; //Analog Input Data 1
-  uint16_t analog2_word = 0; //Analog Input Data 2
-  uint8_t analog1_half1 = 0; //Lower 8 bits
-  uint8_t analog1_half2 = 0; //Upper 4 bits
-  uint8_t analog2_half1 = 0; //Lower 8 bits
-  uint8_t analog2_half2 = 0; //Upper 4 bits
+
+  uint16_t digital_word = 0x0000;
 
   //Starting timers
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_TIM_Base_Start_IT(&htim4);
 
   //Starting DMA
-  HAL_ADC_Start_DMA(&hadc2, (uint32_t*)AdcResults, ADC_BUF_LEN);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,18 +109,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-	analog1_word = AdcResults[0]; //Analog Input Data 1
-	analog2_word = AdcResults[1]; //Analog Input Data 2
-	analog1_half1 = (0b11111111 & analog1_word); //lower 8 bits
-	analog1_half2 = ((0b11111111<<8) & analog1_word)>>8; //upper 8 bits
-	analog2_half1 = (0b11111111 & analog2_word); //lower 8 bits
-	analog2_half2 = ((0b11111111<<8) & analog2_word)>>8; //upper 8 bits
-
 	//Connectors from right to left mapped to bits 0 through 7. J6 (last connector on the left) is unused.
 	//| MSB:J10 | J12 | J7 | J9 | J11 | J13 | J5 | J8:LSB |
-	digital_word = 0x00;
+	digital_word = 0x0000;
 	digital_word = digital_word |  HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13); 	//PB6, J8
 	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_14)) <<1; 		//PB5, J5
 	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)) <<2; 	//PB4, J13
@@ -146,10 +122,10 @@ int main(void)
 	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) <<7; 	//PB8, J10
 
 	//Defining CAN message to be sent
-	TxData[0] = analog2_half2;//analog2 upper 4 bits
-	TxData[1] = analog2_half1;//analog2 lower 8 bits
-	TxData[2] = analog1_half2;//analog1 upper 4 bits
-	TxData[3] = analog1_half1;//analog1 lower 8 bits
+	//TxData[0] = analog2_half2;//analog2 upper 4 bits
+	//TxData[1] = analog2_half1;//analog2 lower 8 bits
+	//TxData[2] = analog1_half2;//analog1 upper 4 bits
+	//TxData[3] = analog1_half1;//analog1 lower 8 bits
 	TxData[4] = digital_word; //Digital input Byte
 	TxData[5] = 0x00;
 	TxData[6] = 0x00;
@@ -206,74 +182,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-}
-
-/**
-  * @brief ADC2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_ADC2_Init(void)
-{
-
-  /* USER CODE BEGIN ADC2_Init 0 */
-
-  /* USER CODE END ADC2_Init 0 */
-
-  ADC_ChannelConfTypeDef sConfig = {0};
-
-  /* USER CODE BEGIN ADC2_Init 1 */
-
-  /* USER CODE END ADC2_Init 1 */
-
-  /** Common config
-  */
-  hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-  hadc2.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc2.Init.GainCompensation = 0;
-  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  hadc2.Init.LowPowerAutoWait = DISABLE;
-  hadc2.Init.ContinuousConvMode = DISABLE;
-  hadc2.Init.NbrOfConversion = 2;
-  hadc2.Init.DiscontinuousConvMode = DISABLE;
-  hadc2.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_TRGO;
-  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
-  hadc2.Init.DMAContinuousRequests = ENABLE;
-  hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc2.Init.OversamplingMode = DISABLE;
-  if (HAL_ADC_Init(&hadc2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_13;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
-  sConfig.SingleDiff = ADC_SINGLE_ENDED;
-  sConfig.OffsetNumber = ADC_OFFSET_NONE;
-  sConfig.Offset = 0;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure Regular Channel
-  */
-  sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN ADC2_Init 2 */
-
-  /* USER CODE END ADC2_Init 2 */
-
 }
 
 /**
@@ -451,23 +359,6 @@ static void MX_TIM4_Init(void)
 }
 
 /**
-  * Enable DMA controller clock
-  */
-static void MX_DMA_Init(void)
-{
-
-  /* DMA controller clock enable */
-  __HAL_RCC_DMAMUX1_CLK_ENABLE();
-  __HAL_RCC_DMA1_CLK_ENABLE();
-
-  /* DMA interrupt init */
-  /* DMA1_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -496,8 +387,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(PB3_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB2_Pin PB1_Pin PB9_Pin */
-  GPIO_InitStruct.Pin = PB2_Pin|PB1_Pin|PB9_Pin;
+  /*Configure GPIO pins : PB2_Pin PB1_Pin PA5 PA6
+                           PB9_Pin */
+  GPIO_InitStruct.Pin = PB2_Pin|PB1_Pin|GPIO_PIN_5|GPIO_PIN_6
+                          |PB9_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -513,16 +406,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-//ADC Callback function
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc2)
-{
-	UNUSED(hadc2); //is this functionally important?
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	//HAL_GPIO_WritePin(port, pinname, GPIO_PIN_SET);
-	//asm("nop");
-	//HAL_GPIO_WrtiePin(port, pinname, GPIO_PIN_RESET);
-}
 
 //updates the CAN TX FIFO precisely every 8ms
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
