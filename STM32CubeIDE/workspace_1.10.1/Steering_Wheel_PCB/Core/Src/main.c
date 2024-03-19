@@ -47,8 +47,8 @@ TIM_HandleTypeDef htim4;
 /* USER CODE BEGIN PV */
 //FDCAN_RxHeaderTypeDef RxHeader;
 FDCAN_TxHeaderTypeDef TxHeader;
-//uint8_t RxData[8];
-uint8_t TxData[8];
+
+uint8_t can_message_content[8];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,7 +95,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //Defining variables
 
-  uint16_t digital_word = 0x0000;
+  uint8_t button_inputs = 0x00;
+  uint8_t paddle_inputs = 0x00;
 
   //Starting timers
   HAL_TIM_Base_Start_IT(&htim1);
@@ -111,25 +112,29 @@ int main(void)
     /* USER CODE END WHILE */
 	//Connectors from right to left mapped to bits 0 through 7. J6 (last connector on the left) is unused.
 	//| MSB:J10 | J12 | J7 | J9 | J11 | J13 | J5 | J8:LSB |
-	digital_word = 0x0000;
-	digital_word = digital_word |  HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13); 	//PB6, J8
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_14)) <<1; 		//PB5, J5
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)) <<2; 	//PB4, J13
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_1)) <<3; 	//PB3, J11
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)) <<4; 	//PB2, J9
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) <<5; 	//PB1, J7
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7)) <<6; 	//PB9, J12
-	digital_word = digital_word | (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) <<7; 	//PB8, J10
+	button_inputs = 0x00;
+	button_inputs = button_inputs |  HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13); 	//PB6, J8
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_14)) <<1; 		//PB5, J5
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_15)) <<2; 	//PB4, J13
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOF, GPIO_PIN_1)) <<3; 	//PB3, J11
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)) <<4; 	//PB2, J9
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1)) <<5; 	//PB1, J7
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7)) <<6; 	//PB9, J12
+	button_inputs = button_inputs | (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0)) <<7; 	//PB8, J10
+
+  paddle_inputs = 0x00;
+  paddle_inputs = paddle_inputs |  HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5); 	//PA5, J1
+  paddle_inputs = paddle_inputs | (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6)) <<1; 		//PA6, J2
 
 	//Defining CAN message to be sent
-	//TxData[0] = analog2_half2;//analog2 upper 4 bits
-	//TxData[1] = analog2_half1;//analog2 lower 8 bits
-	//TxData[2] = analog1_half2;//analog1 upper 4 bits
-	//TxData[3] = analog1_half1;//analog1 lower 8 bits
-	TxData[4] = digital_word; //Digital input Byte
-	TxData[5] = 0x00;
-	TxData[6] = 0x00;
-	TxData[7] = 0x00;
+	can_message_content[0] = button_inputs; 
+	can_message_content[1] = paddle_inputs;
+	can_message_content[2] = 0x00;
+	can_message_content[3] = 0x00;
+  can_message_content[4] = 0x00;
+  can_message_content[5] = 0x00;
+  can_message_content[6] = 0x00;
+  can_message_content[7] = 0x00;
 
 	//Toggling indicator output (debug)
 	//HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
@@ -414,7 +419,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim == &htim4)
 	{
 		//Adds another message to the CAN FIFO every 8ms
-		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, TxData);
+		HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &TxHeader, can_message_content);
 	}
 	if(htim == &htim1)
 	{
